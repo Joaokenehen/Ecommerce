@@ -1,0 +1,78 @@
+create table usuarios (
+	usuario_id int primary key auto_increment,
+	nome_completo varchar(80) not null,
+	genero enum('Masculino', 'Feminino'),
+	data_cadastro timestamp default CURRENT_TIMESTAMP,
+	pais varchar(40),
+	cidade varchar(60),
+	endereco_linha varchar(225)
+);
+
+
+create table pedidos (
+	pedido_id int primary key auto_increment,
+	data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	tracking_codigo varchar(100),
+	data_entrega DATE,
+	observacoes TEXT,
+	pagamento_id int,
+	usuario_id int
+);
+
+create table pagamento (
+	pedido_id int not null,
+	metodo_id int not null,
+	data_pagamento timestamp default current_timestamp,
+	valor decimal(10, 2),
+	status ENUM('Pendente', 'Aprovado', 'Rejeitado', 'Cancelado') default 'Pendente',
+	identificador_transacao	varchar(225),
+	data_autorizacao DATE,
+	primary key (pedido_id, metodo_id)
+);
+
+create table form_pagamento (
+	metodo_id int primary key auto_increment,
+	metodo_pagamento enum('Cartão de crédito', 'PIX', 'Boleto', 'PayPal')
+);
+
+create table item_pedido (
+	pedido_id int not null,
+	item_id int not null,
+	quantidade int not null,
+	preco_unitario decimal(10, 2) not null,
+	primary key (pedido_id, item_id)
+);
+
+create table item (
+	item_id int primary key auto_increment,
+	preco_unitario decimal(10, 2) not null,
+	desconto decimal(10, 2) default 0,
+	quantidade int not null,
+	subtotal decimal(10, 2) as (quantidade * preco_unitario - desconto)
+);
+
+
+alter table pagamento add constraint FK_product_pay
+foreign key (pedido_id) references pedidos(pedido_id)
+
+
+alter table pagamento add constraint FK_pag_form
+foreign key (metodo_id) references form_pagamento(metodo_id)
+
+
+alter table pedidos add constraint FK_user_product
+foreign key (usuario_id) references usuarios(usuario_id)
+
+
+alter table item_pedido add constraint FK_item_order
+foreign key (pedido_id) references pedidos(pedido_id)
+
+
+alter table item_pedido add constraint FK_item_item
+foreign key (item_id) references item(item_id)
+
+
+
+
+
+
